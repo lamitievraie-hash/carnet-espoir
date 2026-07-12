@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Carnet ESPOIR CITOYEN</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 20px auto; padding: 20px; }
+    input, button { padding: 10px; margin: 5px; font-size: 16px; }
+    button { background: #003366; color: white; border: none; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    td, th { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background: #003366; color: white; }
+  </style>
+</head>
+<body>
+  <h1>📒 Carnet ESPOIR CITOYEN</h1>
+  
+  <form id="form">
+    <input id="nom" placeholder="Nom complet" required>
+    <input id="telephone" placeholder="Téléphone" required>
+    <input id="quartier" placeholder="Quartier" required>
+    <button>Ajouter</button>
+  </form>
+
+  <table id="table">
+    <thead><tr><th>Nom</th><th>Téléphone</th><th>Quartier</th><th>Date</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function charger() {
+      const data = await fetch('/api/contacts').then(r => r.json());
+      document.querySelector('tbody').innerHTML = data.map(c => `
+        <tr>
+          <td>${c.nom}</td>
+          <td>${c.telephone}</td>
+          <td>${c.quartier}</td>
+          <td>${new Date(c.date_ajout).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('form').onsubmit = async (e) => {
+      e.preventDefault();
+      await fetch('/api/contacts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          nom: nom.value,
+          telephone: telephone.value,
+          quartier: quartier.value
+        })
+      });
+      e.target.reset();
+      charger();
+    };
+
+    charger();
+  </script>
+</body>
+</html>
